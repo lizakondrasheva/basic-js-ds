@@ -1,119 +1,160 @@
 const { NotImplementedError } = require('../extensions/index.js');
 
-// const { Node } = require('../extensions/list-tree.js');
+//const { Node } = require('../extensions/listNull-tree.js');
 
 /**
 * Implement simple binary search tree according to task description
 * using Node from extensions
 */
-module.exports = {
-  BinarySearchTree
-};
 
+
+
+
+class Node {
+  constructor(data) {
+    this.data = data;
+    this.l = null;
+    this.r = null;
+  }
+}
 class BinarySearchTree {
-  root = null;
-
   constructor() {
-      this.root = null;
+    this.listNull = null;
   }
 
   root() {
-      return this.root;
+    return this.listNull === null ? null : this.listNull;
   }
-  add(data) {
-      let i = new Node(data);
-      if (this.root === null) {
-          this.root = i;
-      } else {
-          checkNode(this.root, i);
-      }
 
-      function checkNode(current, i) {
-          if (i.data < current.data) {
-              if (current.left === null) {
-                  current.left = i;
-              } else {
-                  checkNode(current.left, i);
-              }
-          } else {
-              if (current.right === null) {
-                  current.right = i;
-              } else {
-                  checkNode(current.right, i);
-              }
-          }
-      }
+  add(data) {
+    let node = new Node(data);
+
+    if (this.listNull === null) {
+      this.listNull = node;
+      return this.listNull;
+    };
+
+    this.c = this.listNull;
+    do {
+      if (this.c.data === data) break;
+
+      if (data < this.c.data) {
+        if (this.c.l === null) {
+          this.c.l = node;
+          break;
+        } else {
+          this.c = this.c.l;
+        };
+      };
+
+      if (this.c.data < data) {
+        if (this.c.r === null) {
+          this.c.r = node;
+          break;
+        } else {
+          this.c = this.c.r;
+        };
+      };
+    } while (true);
+
+    return this.listNull;
   }
 
   has(data) {
-      let nodeData = this.find(data);
-      if (nodeData === null) return false;
-      else return true;
+    return !!this.find(data);
   }
 
   find(data) {
-      if (this.root === null) return null;
-      let nodeData = this.root;
-      if (nodeData.data === data) return nodeData;
-      else {
-          while (nodeData)
-              if (nodeData.data === data) return nodeData;
-              else {
-                  if (data < nodeData.data) {
-                      nodeData = nodeData.left;
-                  } else {
-                      nodeData = nodeData.right;
-                  }
-              }
-      }
-      return null;
-  }
-  remove(data) {
-      this.root = deleteNode(this.root, data);
+    if (this.listNull === null) return null;
 
-      function deleteNode(nodeData, data) {
-          if (nodeData === null) return null;
-          else if (data < nodeData.data) {
-              nodeData.left = deleteNode(nodeData.left, data);
-              return nodeData;
-          } else if (data > nodeData.data) {
-              nodeData.right = deleteNode(nodeData.right, data);
-              return nodeData;
-          } else {
-              if (nodeData.left === null && nodeData.right === null) nodeData = null;
-              else if (nodeData.left === null) {
-                  nodeData = nodeData.right;
-                  return nodeData;
-              } else if (nodeData.right === null) {
-                  nodeData = nodeData.left;
-                  return nodeData;
-              } else {
-                  let min = nodeData.right;
-                  while (min.left != null) {
-                      min = min.left;
-                  }
-                  nodeData.data = min.data;
-                  nodeData.right = deleteNode(nodeData.right, min.data);
-                  return nodeData;
-              }
-          }
-      }
+    this.c = this.listNull;
+    do {
+      if (this.c.data === data) return this.c;
+
+      if (data < this.c.data) {
+        if (this.c.l === null) {
+          return null;
+        } else {
+          this.c = this.c.l;
+        };
+      };
+
+      if (this.c.data < data) {
+        if (this.c.r === null) {
+          return null;
+        } else {
+          this.c = this.c.r;
+        };
+      };
+    } while (true);
   }
-  min() {
-      let nodeData = this.root;
-      if (nodeData === null) return null;
-      while (nodeData.left != null) {
-          nodeData = nodeData.left;
+
+  minNode(node) {
+    if (node.l === null)
+      return node;
+    else
+      return this.minNode(node.l);
+  }
+
+  remove(data) {
+    this.listNull = this.removeNode(this.listNull, data);
+  }
+
+  removeNode(node, data) {
+    if (node === null) {
+      return null;
+    } else if (data < node.data) {
+      node.l = this.removeNode(node.l, data);
+      return node;
+    } else if (data > node.data) {
+      node.r = this.removeNode(node.r, data);
+      return node;
+    } else {
+      if (node.l === null && node.r === null) {
+        node = null;
+        return node;
       }
-      return nodeData.data;
+      if (node.l === null) {
+        node = node.r;
+        return node;
+      } else if (node.r === null) {
+        node = node.l;
+        return node;
+      }
+      let newNode = this.minNode(node.r);
+      node.data = newNode.data;
+      node.r = this.removeNode(node.r, newNode.data);
+      return node;
+    };
+  }
+
+  min() {
+    if (this.listNull === null) return null;
+
+    this.c = this.listNull;
+    do {
+      if (this.c.l === null) {
+        return this.c.data;
+      } else {
+        this.c = this.c.l;
+      };
+    } while (true);
   }
 
   max() {
-      let nodeData = this.root;
-      if (nodeData === null) return null;
-      while (nodeData.right != null) {
-          nodeData = nodeData.right;
-      }
-      return nodeData.data;
+    if (this.listNull === null) return null;
+
+    this.c = this.listNull;
+    do {
+      if (this.c.r === null) {
+        return this.c.data;
+      } else {
+        this.c = this.c.r;
+      };
+    } while (true);
   }
 }
+
+module.exports = {
+  BinarySearchTree
+};
